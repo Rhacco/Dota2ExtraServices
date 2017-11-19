@@ -59,6 +59,7 @@ def update_top_live_matches():
                     top_live_matches.append(match)
 
 def update_top_recent_matches():
+    to_remove = []
     index = 0
     while index < len(top_live_matches):
         try:
@@ -68,12 +69,16 @@ def update_top_recent_matches():
             top_recent_matches_server_ids.insert(
                     0, top_live_matches_server_ids[index])
             top_recent_matches.insert(0, finished_top_match)
-            top_live_matches_server_ids.pop(index)
-            top_live_matches_match_ids.pop(index)
-            top_live_matches.pop(index)
+            to_remove.append(index)
         except:
             pass
         index += 1
+    index = 0
+    while index < len(to_remove):
+            top_live_matches_server_ids.pop(to_remove[index] - index)
+            top_live_matches_match_ids.pop(to_remove[index] - index)
+            top_live_matches.pop(to_remove[index] - index)
+            index += 1
     while (len(top_recent_matches) > 20):  # only keep most recent top matches
         top_recent_matches_server_ids.pop()
         top_recent_matches.pop()
