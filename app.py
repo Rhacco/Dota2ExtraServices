@@ -1,6 +1,7 @@
 from config import API_KEY
 from flask import Flask, jsonify
 import dota2api
+import logging
 import threading
 import urllib
 import json
@@ -44,7 +45,7 @@ def update_top_live_matches():
     try:
         steam_result = api.get_top_live_games()['game_list']
     except:
-        print('Failed to fetch top live matches')
+        logging.warning('Failed to fetch top live matches')
         return
     for match in steam_result:
         server_id = match['server_steam_id']
@@ -52,7 +53,7 @@ def update_top_live_matches():
             if server_id not in top_recent_matches_server_ids:
                 match_id = get_match_id(server_id)
                 if match_id is None:
-                    print('Failed to fetch match ID')
+                    logging.warning('Failed to fetch match ID')
                 else:
                     top_live_matches_server_ids.append(server_id)
                     top_live_matches_match_ids.append(match_id)
@@ -90,6 +91,7 @@ def update_loop():
         time.sleep(10)  # wait 10 seconds before next update
 
 if __name__ == '__main__':
+    logging.basicConfig(format='%(asctime)s %(message)s', filename='logs')
     background_updater = threading.Thread(target=update_loop)
     background_updater.daemon = True
     background_updater.start()
