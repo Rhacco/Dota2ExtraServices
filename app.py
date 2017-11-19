@@ -85,8 +85,8 @@ def update_top_recent_matches():
 
 def update_loop():
     while True:
-        update_top_live_matches()
         update_top_recent_matches()
+        update_top_live_matches()
         time.sleep(10)  # wait 10 seconds before next update
 
 if __name__ == '__main__':
