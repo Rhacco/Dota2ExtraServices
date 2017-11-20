@@ -1,6 +1,7 @@
 from config import API_KEY
 from flask import Flask, jsonify
 import dota2api
+import datetime
 import logging
 import threading
 import urllib
@@ -9,6 +10,9 @@ import time
 
 app = Flask(__name__)
 api = dota2api.Initialise(API_KEY)
+logs = 'logs_' + str(datetime.date.today())
+logging.basicConfig(format='%(message)s', filename=logs, level=logging.DEBUG)
+logging.getLogger('requests').setLevel(logging.WARNING)
 
 top_live_matches_server_ids = []
 top_live_matches_match_ids = []
@@ -29,6 +33,10 @@ def get_top_live_matches():
 def get_top_recent_matches():
     return jsonify(top_recent_matches)
 
+def log(message):
+    now = datetime.datetime.now().strftime('%d/%b/%Y %H:%M:%S')
+    logging.info('[%s] %s' % (now, message))
+
 def get_match_id(server_id):
     url = ('https://api.steampowered.com/IDOTA2MatchStats_570/GetRealtimeStats/'
            'v1/?key={}&server_steam_id={}').format(API_KEY, server_id)
@@ -45,15 +53,15 @@ def update_top_live_matches():
     try:
         steam_result = api.get_top_live_games()['game_list']
     except:
-        logging.warning('Failed to fetch top live matches')
+        log('Failed to fetch top live matches')
         return
     for match in steam_result:
         server_id = match['server_steam_id']
         if server_id not in top_live_matches_server_ids:
             if server_id not in top_recent_matches_server_ids:
                 match_id = get_match_id(server_id)
-                if match_id is None:
-                    logging.warning('Failed to fetch match ID')
+                if match_id is None or match_id == 0:
+                    log('Failed to fetch match ID')
                 else:
                     top_live_matches_server_ids.append(server_id)
                     top_live_matches_match_ids.append(match_id)
@@ -91,7 +99,7 @@ def update_loop():
         time.sleep(10)  # wait 10 seconds before next update
 
 if __name__ == '__main__':
-    logging.basicConfig(format='%(asctime)s %(message)s', filename='logs')
+    log('Initializing')
     background_updater = threading.Thread(target=update_loop)
     background_updater.daemon = True
     background_updater.start()
