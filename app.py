@@ -13,6 +13,7 @@ api = dota2api.Initialise(API_KEY)
 logs = 'logs_' + str(datetime.date.today())
 logging.basicConfig(format='%(message)s', filename=logs, level=logging.DEBUG)
 logging.getLogger('requests').setLevel(logging.WARNING)
+logging.getLogger('urllib3').setLevel(logging.WARNING)
 
 top_live_matches_server_ids = []
 top_live_matches_match_ids = []
@@ -103,5 +104,5 @@ if __name__ == '__main__':
     background_updater = threading.Thread(target=update_loop)
     background_updater.daemon = True
     background_updater.start()
-    app.run()
+    app.run(port=6074)
 
