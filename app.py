@@ -1,25 +1,14 @@
-from config import API_KEY
+from utilities import log
+import top_live_matches
+import top_recent_matches
+
 from flask import Flask, jsonify
-import dota2api
-import datetime
-import logging
+from werkzeug.contrib.fixers import ProxyFix
 import threading
-import urllib
-import json
 import time
 
 app = Flask(__name__)
-api = dota2api.Initialise(API_KEY)
-logs = 'logs_' + str(datetime.date.today())
-logging.basicConfig(format='%(message)s', filename=logs, level=logging.DEBUG)
-logging.getLogger('requests').setLevel(logging.WARNING)
-logging.getLogger('urllib3').setLevel(logging.WARNING)
-
-top_live_matches_server_ids = []
-top_live_matches_match_ids = []
-top_live_matches = []
-top_recent_matches_server_ids = []
-top_recent_matches = []
+app.wsgi_app = ProxyFix(app.wsgi_app)  # logs visitors' IPs through proxy
 
 @app.route('/', methods=['GET'])
 def get_index():
@@ -28,75 +17,16 @@ def get_index():
 
 @app.route('/TopLiveMatches', methods=['GET'])
 def get_top_live_matches():
-    return jsonify(top_live_matches)
+    return jsonify(top_live_matches.data)
 
 @app.route('/TopRecentMatches', methods=['GET'])
 def get_top_recent_matches():
-    return jsonify(top_recent_matches)
-
-def log(message):
-    now = datetime.datetime.now().strftime('%d/%b/%Y %H:%M:%S')
-    logging.info('[%s] %s' % (now, message))
-
-def get_match_id(server_id):
-    url = ('https://api.steampowered.com/IDOTA2MatchStats_570/GetRealtimeStats/'
-           'v1/?key={}&server_steam_id={}').format(API_KEY, server_id)
-    try:
-        data = urllib.request.urlopen(url).read().decode()  # needs Python 3+!
-        data = json.loads(data)
-        match_id = data['match']['matchid']
-        return match_id
-    except:
-        return None
-
-def update_top_live_matches():
-    steam_result = []
-    try:
-        steam_result = api.get_top_live_games()['game_list']
-    except:
-        log('Failed to fetch top live matches')
-        return
-    for match in steam_result:
-        server_id = match['server_steam_id']
-        if server_id not in top_live_matches_server_ids:
-            if server_id not in top_recent_matches_server_ids:
-                match_id = get_match_id(server_id)
-                if match_id is None or match_id == 0:
-                    log('Failed to fetch match ID')
-                else:
-                    top_live_matches_server_ids.append(server_id)
-                    top_live_matches_match_ids.append(match_id)
-                    top_live_matches.append(match)
-
-def update_top_recent_matches():
-    to_remove = []
-    index = 0
-    while index < len(top_live_matches):
-        try:
-            # If this succeeds, match details are present and match is finished
-            finished_top_match = api.get_match_details(
-                    top_live_matches_match_ids[index])
-            top_recent_matches_server_ids.insert(
-                    0, top_live_matches_server_ids[index])
-            top_recent_matches.insert(0, finished_top_match)
-            to_remove.append(index)
-        except:
-            pass
-        index += 1
-    index = 0
-    while index < len(to_remove):
-            top_live_matches_server_ids.pop(to_remove[index] - index)
-            top_live_matches_match_ids.pop(to_remove[index] - index)
-            top_live_matches.pop(to_remove[index] - index)
-            index += 1
-    while (len(top_recent_matches) > 20):  # only keep most recent top matches
-        top_recent_matches_server_ids.pop()
-        top_recent_matches.pop()
+    return jsonify(top_recent_matches.data)
 
 def update_loop():
     while True:
-        update_top_recent_matches()
-        update_top_live_matches()
+        top_recent_matches.update()
+        top_live_matches.update()
         time.sleep(10)  # wait 10 seconds before next update
 
 if __name__ == '__main__':
@@ -105,4 +35,3 @@ if __name__ == '__main__':
     background_updater.daemon = True
     background_updater.start()
     app.run(port=6074)
-
