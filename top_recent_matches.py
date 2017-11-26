@@ -1,10 +1,10 @@
 import api
 import top_live_matches
 
-server_ids = []
 data = []
+match_ids = []
 
-def update():
+def handle_finished_matches():
     to_remove = []
     index = 0
     while index < len(top_live_matches.data):
@@ -12,8 +12,8 @@ def update():
             # If this succeeds, match details are present and match is finished
             finished_top_match = api.dota2.get_match_details(
                     top_live_matches.match_ids[index])
-            server_ids.insert(0, top_live_matches.server_ids[index])
             data.insert(0, finished_top_match)
+            match_ids.insert(0, top_live_matches.match_ids[index])
             to_remove.append(index)
         except:
             pass
@@ -23,8 +23,8 @@ def update():
         top_live_matches.remove(to_remove[index] - index)
         index += 1
     while (len(data) > 20):  # only keep most recent top matches
-        server_ids.pop()
         data.pop()
+        match_ids.pop()
 
 #def __convert(finished_top_match):
     # TODO
