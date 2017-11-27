@@ -2,9 +2,7 @@ from utilities import log
 import api
 import top_recent_matches
 
-data = []
-server_ids = []
-match_ids = []
+data = {}
 
 def fetch_new_matches():
     steam_result = []
@@ -14,40 +12,34 @@ def fetch_new_matches():
         log('Failed to fetch new matches: ' + str(e))
         return
     for steam_live_match in steam_result:
-        server_id = steam_live_match['server_steam_id']
-        if server_id not in server_ids:
+        server_id = int(steam_live_match['server_steam_id'])
+        if server_id not in data:
             realtime_stats = {}
             try:
                 realtime_stats = api.dota2_get_realtime_stats(server_id)
             except Exception as e:
-                log('Failed to fetch realtime stats for new match: ' + str(e))
+                log('Failed to fetch realtime stats for new match on %d: %s' %
+                        (server_id, str(e)))
                 continue
             match_id = int(realtime_stats['match']['matchid'])
-            if match_id > 0 and match_id not in top_recent_matches.match_ids:
-                data.append(__convert(steam_live_match, realtime_stats))
-                server_ids.append(server_id)
-                match_ids.append(match_id)
+            if match_id > 0 and match_id not in top_recent_matches.data:
+                data[server_id] = __convert(steam_live_match, realtime_stats)
 
 def update_realtime_stats():
-    index = 0
-    while index < len(data):
+    for server_id, live_match in data.items():
         try:
-            realtime_stats = api.dota2_get_realtime_stats(server_ids[index])
-            __set_realtime_stats(data[index], realtime_stats)
+            realtime_stats = api.dota2_get_realtime_stats(server_id)
+            __set_realtime_stats(live_match, realtime_stats)
         except Exception as e:
-            log('Failed to update realtime stats: ' + str(e))
-        index += 1
+            log('Failed to update realtime stats of %d: %s' %
+                    (server_id, str(e)))
 
 def remove(match_id):
-    index = 0
-    while index < len(match_ids):
-        if match_id == match_ids[index]:
-            data.pop(index)
-            server_ids.pop(index)
-            match_ids.pop(index)
+    for server_id, live_match in data.items():
+        if match_id == live_match['match_id']:
+            data.pop(server_id)
             return
-        index += 1
-    raise ValueError('Match ID not found in live matches')
+    raise ValueError('Match ID %d not registered' % match_id)
 
 def __convert(steam_live_match, realtime_stats):  # only keep relevant data
     converted = {}
