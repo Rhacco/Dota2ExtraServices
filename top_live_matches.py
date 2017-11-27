@@ -12,10 +12,16 @@ def fetch_new_matches():
         steam_result = api.dota2.get_top_live_games()['game_list']
     except Exception as e:
         log('Failed to fetch new matches: ' + str(e))
+        return
     for steam_live_match in steam_result:
-        server_id = int(steam_live_match['server_steam_id'])
+        server_id = steam_live_match['server_steam_id']
         if server_id not in server_ids:
-            realtime_stats = api.dota2_get_realtime_stats(server_id)
+            realtime_stats = {}
+            try:
+                realtime_stats = api.dota2_get_realtime_stats(server_id)
+            except Exception as e:
+                log('Failed to fetch realtime stats for new match: ' + str(e))
+                continue
             match_id = int(realtime_stats['match']['matchid'])
             if match_id > 0 and match_id not in top_recent_matches.match_ids:
                 data.append(__convert(steam_live_match, realtime_stats))
@@ -32,10 +38,16 @@ def update_realtime_stats():
             log('Failed to update realtime stats: ' + str(e))
         index += 1
 
-def remove(index):
-    data.pop(index)
-    server_ids.pop(index)
-    match_ids.pop(index)
+def remove(match_id):
+    index = 0
+    while index < len(match_ids):
+        if match_id == match_ids[index]:
+            data.pop(index)
+            server_ids.pop(index)
+            match_ids.pop(index)
+            return
+        index += 1
+    raise ValueError('Match ID not found in live matches')
 
 def __convert(steam_live_match, realtime_stats):  # only keep relevant data
     converted = {}

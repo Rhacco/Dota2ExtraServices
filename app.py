@@ -29,15 +29,14 @@ def fetch_new_matches():
         lock.acquire()
         top_live_matches.fetch_new_matches()
         lock.release()
-        time.sleep(1)  # only wait 1 second to not miss any matches
 
 def update_registered_matches():
     while True:
         lock.acquire()
         top_recent_matches.handle_finished_matches()
         top_live_matches.update_realtime_stats()
+        top_recent_matches.fetch_finished_matches()
         lock.release()
-        # don't wait at all here since the API calls take long enough
 
 if __name__ == '__main__':
     log('Initializing')
