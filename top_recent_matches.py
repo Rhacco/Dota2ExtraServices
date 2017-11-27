@@ -35,9 +35,9 @@ def handle_finished_matches():
             live_match = __finished_live_matches[match_id][0]
             steam_finished_match = __finished_live_matches[match_id][1]
             try:
-                top_live_matches.remove(match_id)
                 data[match_id] = __convert(live_match, steam_finished_match)
                 data.move_to_end(match_id, last=False)  # needs Python 3.2+!
+                top_live_matches.remove(match_id)
                 to_remove_self.append(match_id)
             except Exception as e:
                 log('Failed to handle finished match %s: %s' %
