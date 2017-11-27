@@ -1,6 +1,7 @@
 from utilities import log
 import api
 import top_recent_matches
+import pro_players
 
 data = []  # sorted by descending average MMR, tournament matches first
 __data = {}  # for convenient internal use, unsorted
@@ -62,9 +63,17 @@ def __convert(steam_live_match, realtime_stats):  # only keep relevant data
     converted['players'] = []
     for team in realtime_stats['teams']:
         for player in team['players']:
-            converted['players'].append(
-                    {'current_steam_name': player['name'],
-                     'steam_id': player['accountid']})
+            steam_id = player['accountid']
+            new_player = {}
+            new_player['current_steam_name'] = player['name']
+            new_player['steam_id'] = steam_id
+            if steam_id in pro_players.data:
+                pro = pro_players.data[steam_id]
+                official_name = pro['name']
+                if pro['team_tag']:  # if pro player is in a team currently
+                    official_name = pro['team_tag'] + '.' + pro['name']
+                new_player['official_name'] = official_name
+            converted['players'].append(new_player)
     __set_realtime_stats(converted, realtime_stats)
     return converted
 

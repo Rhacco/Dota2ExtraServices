@@ -1,6 +1,7 @@
 from utilities import log
 import top_live_matches
 import top_recent_matches
+import pro_players
 
 from flask import Flask, jsonify
 from werkzeug.contrib.fixers import ProxyFix
@@ -29,6 +30,7 @@ def fetch_new_matches():
         lock.acquire()
         top_live_matches.fetch_new_matches()
         lock.release()
+        pro_players.update()  # don't create a new thread for this, do it here
 
 def update_registered_matches():
     while True:
@@ -40,6 +42,7 @@ def update_registered_matches():
 
 if __name__ == '__main__':
     log('Initializing')
+    pro_players.update()
     background_updater1 = threading.Thread(target=fetch_new_matches)
     background_updater1.daemon = True
     background_updater1.start()

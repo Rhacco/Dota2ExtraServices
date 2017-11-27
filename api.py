@@ -12,3 +12,9 @@ def dota2_get_realtime_stats(server_id):
     data = urllib.request.urlopen(url).read().decode()  # needs Python 3+!
     data = json.loads(data)
     return data
+
+def opendota_get_pro_players():
+    url = 'https://api.opendota.com/api/proPlayers'
+    data = urllib.request.urlopen(url).read().decode()  # needs Python 3+!
+    data = json.loads(data)
+    return data
