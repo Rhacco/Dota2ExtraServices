@@ -2,7 +2,8 @@ from utilities import log
 import api
 import top_recent_matches
 
-data = {}
+data = []  # sorted by descending average MMR, tournament matches first
+__data = {}  # for convenient internal use, unsorted
 
 def fetch_new_matches():
     steam_result = []
@@ -13,7 +14,7 @@ def fetch_new_matches():
         return
     for steam_live_match in steam_result:
         server_id = int(steam_live_match['server_steam_id'])
-        if server_id not in data:
+        if server_id not in __data:
             realtime_stats = {}
             try:
                 realtime_stats = api.dota2_get_realtime_stats(server_id)
@@ -23,10 +24,11 @@ def fetch_new_matches():
                 continue
             match_id = int(realtime_stats['match']['matchid'])
             if match_id > 0 and match_id not in top_recent_matches.data:
-                data[server_id] = __convert(steam_live_match, realtime_stats)
+                __data[server_id] = __convert(steam_live_match, realtime_stats)
+                __insert_sorted(__data[server_id])
 
 def update_realtime_stats():
-    for server_id, live_match in data.items():
+    for server_id, live_match in __data.items():
         try:
             realtime_stats = api.dota2_get_realtime_stats(server_id)
             __set_realtime_stats(live_match, realtime_stats)
@@ -35,9 +37,13 @@ def update_realtime_stats():
                     (server_id, str(e)))
 
 def remove(match_id):
-    for server_id, live_match in data.items():
+    for index, live_match in enumerate(data):
         if match_id == live_match['match_id']:
-            data.pop(server_id)
+            data.pop(index)
+            break
+    for server_id, live_match in __data.items():
+        if match_id == live_match['match_id']:
+            __data.pop(server_id)
             return
     raise ValueError('Match ID %d not registered' % match_id)
 
@@ -80,3 +86,13 @@ def __set_realtime_stats(live_match, realtime_stats):
     else:  # heroes not assigned yet
         live_match['gold_advantage'] = 0
         live_match['elapsed_time'] = 0
+
+def __insert_sorted(new_live_match):
+    if new_live_match['is_tournament_match']:
+        data.insert(0, new_live_match)
+    else:
+        for index, live_match in enumerate(data):
+            if new_live_match['average_mmr'] > live_match['average_mmr']:
+                data.insert(index, new_live_match)
+                return
+        data.append(new_live_match)

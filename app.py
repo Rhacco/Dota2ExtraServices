@@ -18,7 +18,7 @@ def get_index():
 
 @app.route('/TopLiveMatches', methods=['GET'])
 def get_top_live_matches():
-    return jsonify(list(top_live_matches.data.values()))
+    return jsonify(top_live_matches.data)
 
 @app.route('/TopRecentMatches', methods=['GET'])
 def get_top_recent_matches():

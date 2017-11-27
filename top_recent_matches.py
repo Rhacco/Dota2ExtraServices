@@ -6,12 +6,12 @@ from collections import OrderedDict
 import datetime
 from copy import deepcopy
 
-data = OrderedDict()
+data = OrderedDict()  # sorted by time finished, most recent first
 __finished_live_matches = {}
 __expiration_dates = {}  # compensate for two-minute delay of Steam Web API
 
 def fetch_finished_matches():
-    for live_match in top_live_matches.data.values():
+    for live_match in top_live_matches.data:
         match_id = live_match['match_id']
         if match_id not in __finished_live_matches:
             try:
