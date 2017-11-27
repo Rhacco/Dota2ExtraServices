@@ -1,7 +1,9 @@
 from utilities import log
+import heroes
+import items
+import pro_players
 import top_live_matches
 import top_recent_matches
-import pro_players
 
 from flask import Flask, jsonify
 from werkzeug.contrib.fixers import ProxyFix
@@ -16,6 +18,14 @@ lock = threading.Lock()
 def get_index():
     return ('Additional Dota 2 services not directly available in the Steam Web'
             ' API. See https://github.com/Rhacco/Dota2ExtraServices')
+
+@app.route('/Heroes', methods=['GET'])
+def get_heroes():
+    return jsonify(heroes.data)
+
+@app.route('/Items', methods=['GET'])
+def get_items():
+    return jsonify(items.data)
 
 @app.route('/TopLiveMatches', methods=['GET'])
 def get_top_live_matches():
@@ -42,6 +52,8 @@ def update_registered_matches():
 
 if __name__ == '__main__':
     log('Initializing')
+    heroes.fetch()
+    items.fetch()
     pro_players.update()
     background_updater1 = threading.Thread(target=fetch_new_matches)
     background_updater1.daemon = True
