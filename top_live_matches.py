@@ -20,8 +20,8 @@ def fetch_new_matches():
             try:
                 realtime_stats = api.dota2_get_realtime_stats(server_id)
             except Exception as e:
-                log('Failed to fetch realtime stats for new match on %d: %s' %
-                        (server_id, str(e)))
+                log('Failed to fetch realtime stats for new match on %s: %s' %
+                        (str(server_id), str(e)))
                 continue
             match_id = int(realtime_stats['match']['matchid'])
             if match_id > 0 and match_id not in top_recent_matches.data:
@@ -34,8 +34,8 @@ def update_realtime_stats():
             realtime_stats = api.dota2_get_realtime_stats(server_id)
             __set_realtime_stats(live_match, realtime_stats)
         except Exception as e:
-            log('Failed to update realtime stats of %d: %s' %
-                    (server_id, str(e)))
+            log('Failed to update realtime stats of %s: %s' %
+                    (str(server_id), str(e)))
 
 def remove(match_id):
     for index, live_match in enumerate(data):
@@ -46,12 +46,12 @@ def remove(match_id):
         if match_id == live_match['match_id']:
             __data.pop(server_id)
             return
-    raise ValueError('Match ID %d not registered' % match_id)
+    raise ValueError('Match ID %s not registered' % str(match_id))
 
 def __convert(steam_live_match, realtime_stats):  # only keep relevant data
     converted = {}
-    converted['server_id'] = steam_live_match['server_steam_id']
-    converted['match_id'] = realtime_stats['match']['matchid']
+    converted['server_id'] = int(steam_live_match['server_steam_id'])
+    converted['match_id'] = int(realtime_stats['match']['matchid'])
     average_mmr = steam_live_match['average_mmr']
     if average_mmr < 1:
         converted['is_tournament_match'] = True

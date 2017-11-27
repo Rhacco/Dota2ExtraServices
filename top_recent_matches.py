@@ -12,7 +12,7 @@ __expiration_dates = {}  # compensate for two-minute delay of Steam Web API
 
 def fetch_finished_matches():
     for live_match in top_live_matches.data:
-        match_id = live_match['match_id']
+        match_id = int(live_match['match_id'])
         if match_id not in __finished_live_matches:
             try:
                 # If this succeeds, match is finished
@@ -24,8 +24,8 @@ def fetch_finished_matches():
                 __expiration_dates[match_id] = expiration_date
             except Exception as e:
                 if str(e) != '\'Match ID not found\'':
-                    log('Failed to fetch finished match %d: %s' %
-                            (match_id, str(e)))
+                    log('Failed to fetch finished match %s: %s' %
+                            (str(match_id), str(e)))
 
 def handle_finished_matches():
     now = datetime.datetime.now()
@@ -40,8 +40,8 @@ def handle_finished_matches():
                 data.move_to_end(match_id, last=False)  # needs Python 3.2+!
                 to_remove_self.append(match_id)
             except Exception as e:
-                log('Failed to handle finished match %d: %s' %
-                        (match_id, str(e)))
+                log('Failed to handle finished match %s: %s' %
+                        (str(match_id), str(e)))
     for match_id in to_remove_self:
         __finished_live_matches.pop(match_id)
         __expiration_dates.pop(match_id)
