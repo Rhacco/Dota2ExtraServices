@@ -101,6 +101,8 @@ def __insert_sorted(new_live_match):
         data.insert(0, new_live_match)
     else:
         for index, live_match in enumerate(data):
+            if live_match['is_tournament_match']:
+                continue
             if new_live_match['average_mmr'] > live_match['average_mmr']:
                 data.insert(index, new_live_match)
                 return
