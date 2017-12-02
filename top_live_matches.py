@@ -5,6 +5,7 @@ import pro_players
 
 data = []  # sorted by descending average MMR, tournament matches first
 __data = {}  # for convenient internal use, unsorted
+fail_counters = {}  # compensate for corrupt API calls occurring sometimes
 
 def fetch_new_matches():
     steam_result = []
@@ -29,6 +30,7 @@ def fetch_new_matches():
                 __insert_sorted(__data[server_id])
 
 def update_realtime_stats():
+    to_remove = []
     for server_id, live_match in __data.items():
         try:
             realtime_stats = api.dota2_get_realtime_stats(server_id)
@@ -36,6 +38,16 @@ def update_realtime_stats():
         except Exception as e:
             log('Failed to update realtime stats of %s: %s' %
                     (str(server_id), str(e)))
+            match_id = live_match['match_id']
+            if match_id not in fail_counters:
+                fail_counters[match_id] = 0
+            fail_counters[match_id] += 1
+            if fail_counters[match_id] >= 5:
+                log('Removing %s, failed too often' % str(server_id))
+                to_remove.append(match_id)
+    for match_id in to_remove:
+        remove(match_id)
+        fail_counters.pop(match_id)
 
 def remove(match_id):
     for index, live_match in enumerate(data):
@@ -52,6 +64,7 @@ def __convert(steam_live_match, realtime_stats):  # only keep relevant data
     converted = {}
     converted['server_id'] = int(steam_live_match['server_steam_id'])
     converted['match_id'] = int(realtime_stats['match']['matchid'])
+    converted['delay'] = steam_live_match['delay']
     average_mmr = steam_live_match['average_mmr']
     if average_mmr < 1:
         converted['is_tournament_match'] = True
@@ -68,11 +81,13 @@ def __convert(steam_live_match, realtime_stats):  # only keep relevant data
             new_player['current_steam_name'] = player['name']
             new_player['steam_id'] = steam_id
             if steam_id in pro_players.data:
-                pro = pro_players.data[steam_id]
-                official_name = pro['name']
-                if pro['team_tag']:  # if pro player is in a team currently
-                    official_name = pro['team_tag'] + '.' + pro['name']
+                pro_data = pro_players.data[steam_id]
+                official_name = pro_data['name']
+                if pro_data['team_tag']:  # if pro player is in a team currently
+                    official_name = pro_data['team_tag'] + '.' + official_name
                 new_player['official_name'] = official_name
+                if converted['is_tournament_match']:
+                    new_player.pop('current_steam_name')
             converted['players'].append(new_player)
     __set_realtime_stats(converted, realtime_stats)
     return converted
