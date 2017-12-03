@@ -20,14 +20,14 @@ def fetch_new_matches():
             realtime_stats = {}
             try:
                 realtime_stats = api.dota2_get_realtime_stats(server_id)
+                match_id = int(realtime_stats['match']['matchid'])
+                if match_id > 0 and match_id not in top_recent_matches.data:
+                    converted = __convert(steam_live_match, realtime_stats)
+                    __data[server_id] = converted
+                    __insert_sorted(converted)
             except Exception as e:
                 log('Failed to fetch realtime stats for new match on %s: %s' %
                         (str(server_id), str(e)))
-                continue
-            match_id = int(realtime_stats['match']['matchid'])
-            if match_id > 0 and match_id not in top_recent_matches.data:
-                __data[server_id] = __convert(steam_live_match, realtime_stats)
-                __insert_sorted(__data[server_id])
 
 def update_realtime_stats():
     to_remove = []
