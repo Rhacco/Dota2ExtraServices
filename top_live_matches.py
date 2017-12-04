@@ -58,7 +58,7 @@ def remove(match_id):
         if match_id == live_match['match_id']:
             __data.pop(server_id)
             return
-    raise ValueError('Match ID %s not registered' % str(match_id))
+    log('Failed to remove %s: Match ID not registered' % str(match_id))
 
 def __convert(steam_live_match, realtime_stats):  # only keep relevant data
     converted = {}
