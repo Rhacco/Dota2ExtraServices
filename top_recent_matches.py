@@ -69,13 +69,12 @@ def handle_finished_matches():
 
 def __convert(live_match, steam_finished_match):
     converted = deepcopy(live_match)
-    converted.pop('server_id')
-    converted.pop('elapsed_time')
-    converted.pop('delay')
-    converted['radiant_score'] = steam_finished_match['radiant_score']
-    converted['dire_score'] = steam_finished_match['dire_score']
     realtime_stats = api.dota2_get_realtime_stats(live_match['server_id'])
-    converted['gold_advantage'] = realtime_stats['graph_data']['graph_gold'][-1]
+    top_live_matches.set_realtime_stats(converted, realtime_stats)
     converted['duration'] = steam_finished_match['duration']
     converted['radiant_win'] = steam_finished_match['radiant_win']
+    converted.pop('server_id')
+    converted.pop('delay')
+    converted.pop('spectators')
+    converted.pop('elapsed_time')
     return converted

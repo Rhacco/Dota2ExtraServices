@@ -41,7 +41,7 @@ def update_realtime_stats():
     for server_id, live_match in __data.items():
         try:
             realtime_stats = api.dota2_get_realtime_stats(server_id)
-            __set_realtime_stats(live_match, realtime_stats)
+            set_realtime_stats(live_match, realtime_stats)
         except Exception as e:
             log('Failed to update realtime stats of %s: %s' %
                     (str(server_id), str(e)))
@@ -97,10 +97,10 @@ def __convert(steam_live_match, realtime_stats):  # only keep relevant data
                 if converted['is_tournament_match']:
                     new_player.pop('current_steam_name')
             converted['players'].append(new_player)
-    __set_realtime_stats(converted, realtime_stats)
+    set_realtime_stats(converted, realtime_stats)
     return converted
 
-def __set_realtime_stats(live_match, realtime_stats):
+def set_realtime_stats(live_match, realtime_stats):
     live_match['radiant_score'] = realtime_stats['teams'][0]['score']
     live_match['dire_score'] = realtime_stats['teams'][1]['score']
     gold_advantage = realtime_stats['graph_data']['graph_gold'][-1]
