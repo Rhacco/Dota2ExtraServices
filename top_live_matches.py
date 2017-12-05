@@ -16,7 +16,14 @@ def fetch_new_matches():
         return
     for steam_live_match in steam_result:
         server_id = int(steam_live_match['server_steam_id'])
-        if server_id not in __data:
+        if server_id in __data:
+            try:
+                live_match = __data[server_id]
+                live_match['spectators'] = steam_live_match['spectators']
+            except Exception as e:
+                log('Failed to set spectators for match on %s: %s' %
+                        (str(server_id), str(e)))
+        else:
             realtime_stats = {}
             try:
                 realtime_stats = api.dota2_get_realtime_stats(server_id)
@@ -65,6 +72,7 @@ def __convert(steam_live_match, realtime_stats):  # only keep relevant data
     converted['server_id'] = int(steam_live_match['server_steam_id'])
     converted['match_id'] = int(realtime_stats['match']['matchid'])
     converted['delay'] = steam_live_match['delay']
+    converted['spectators'] = steam_live_match['spectators']
     average_mmr = steam_live_match['average_mmr']
     if average_mmr < 1:
         converted['is_tournament_match'] = True
@@ -99,12 +107,17 @@ def __set_realtime_stats(live_match, realtime_stats):
     elapsed_time = max(0, realtime_stats['match']['game_time'])
     live_match['gold_advantage'] = gold_advantage
     live_match['elapsed_time'] = elapsed_time
+    players = realtime_stats['teams'][0]['players']
+    players.extend(realtime_stats['teams'][1]['players'])
+    for index, player in enumerate(players):
+        score_kda = '%s/%s/%s' % (str(player['kill_count']),
+            str(player['death_count']), str(player['assists_count']))
+        live_match['players'][index]['score_kda'] = score_kda
     if 'heroes' in live_match:
         return  # heroes are already assigned, nothing more to do
     heroes = []
-    for team in realtime_stats['teams']:
-        for player in team['players']:
-            heroes.append(player['heroid'])
+    for player in players:
+        heroes.append(player['heroid'])
     if (len(heroes) == 10 and heroes[0] > 0 and heroes[1] > 0):
         live_match['heroes'] = heroes
     else:  # heroes not assigned yet
