@@ -11,8 +11,7 @@ def fetch_new_matches():
     steam_result = []
     try:
         steam_result = api.dota2.get_top_live_games()['game_list']
-    except Exception as e:
-        log('Failed to fetch new matches: ' + str(e))
+    except:
         return
     for steam_live_match in steam_result:
         server_id = int(steam_live_match['server_steam_id'])
@@ -20,21 +19,18 @@ def fetch_new_matches():
             try:
                 live_match = __data[server_id]
                 live_match['spectators'] = steam_live_match['spectators']
-            except Exception as e:
-                log('Failed to set spectators for match on %s: %s' %
-                        (str(server_id), str(e)))
+            except:
+                pass
         else:
-            realtime_stats = {}
             try:
                 realtime_stats = api.dota2_get_realtime_stats(server_id)
                 match_id = int(realtime_stats['match']['matchid'])
-                if match_id > 0 and match_id not in top_recent_matches.data:
+                if match_id not in top_recent_matches.data and match_id > 0:
                     converted = __convert(steam_live_match, realtime_stats)
                     __data[server_id] = converted
                     __insert_sorted(converted)
-            except Exception as e:
-                log('Failed to fetch realtime stats for new match on %s: %s' %
-                        (str(server_id), str(e)))
+            except:
+                pass
 
 def update_realtime_stats():
     to_remove = []
@@ -42,16 +38,16 @@ def update_realtime_stats():
         try:
             realtime_stats = api.dota2_get_realtime_stats(server_id)
             set_realtime_stats(live_match, realtime_stats)
-        except Exception as e:
-            log('Failed to update realtime stats of %s: %s' %
-                    (str(server_id), str(e)))
+        except:
             match_id = live_match['match_id']
             if match_id not in fail_counters:
                 fail_counters[match_id] = 0
             fail_counters[match_id] += 1
-            if fail_counters[match_id] >= 5:
-                log('Removing %s, failed too often' % str(server_id))
+            if fail_counters[match_id] >= 10:
+                log('Removing %s on %s, failed realt. stats update too often' %
+                        (str(match_id), str(live_match['server_id'])))
                 to_remove.append(match_id)
+            pass
     for match_id in to_remove:
         remove(match_id)
         fail_counters.pop(match_id)

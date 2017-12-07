@@ -24,10 +24,8 @@ def fetch_finished_matches():
                 delay = live_match['delay']
                 expiration_date = now + datetime.timedelta(seconds=delay)
                 __expiration_dates[match_id] = expiration_date
-            except Exception as e:
-                if str(e) != '\'Match ID not found\'':
-                    log('Failed to check if match %s is finished: %s' %
-                            (str(match_id), str(e)))
+            except:
+                pass
 
 def handle_finished_matches():
     now = datetime.datetime.now()
@@ -40,19 +38,18 @@ def handle_finished_matches():
             try:
                 data[match_id] = __convert(live_match, steam_finished_match)
                 data.move_to_end(match_id, last=False)  # needs Python 3.2+!
-                top_live_matches.remove(match_id)
                 to_remove_finished.append(match_id)
-            except Exception as e:
-                log('Failed to handle finished match %s: %s' %
-                        (str(match_id), str(e)))
+            except:
                 if match_id not in __fail_counters:
                     __fail_counters[match_id] = 0
                 __fail_counters[match_id] += 1
-                if __fail_counters[match_id] >= 5:
-                    log('Removing %s on %s, failed too often' %
+                if __fail_counters[match_id] >= 10:
+                    log('Removing %s on %s, failed handle finished too often' %
                             (str(match_id), str(live_match['server_id'])))
                     to_remove_failed.append(match_id)
+                pass
     for match_id in to_remove_finished:
+        top_live_matches.remove(match_id)
         __finished_matches.pop(match_id)
         __expiration_dates.pop(match_id)
         if match_id in __fail_counters:
@@ -61,9 +58,11 @@ def handle_finished_matches():
             top_live_matches.fail_counters.pop(match_id)
     for match_id in to_remove_failed:
         top_live_matches.remove(match_id)
-        __fail_counters.pop(match_id)
         __finished_matches.pop(match_id)
         __expiration_dates.pop(match_id)
+        __fail_counters.pop(match_id)
+        if match_id in top_live_matches.fail_counters:
+            top_live_matches.fail_counters.pop(match_id)
     while len(data) > 20:  # only keep most recent top matches
         data.popitem()
 
