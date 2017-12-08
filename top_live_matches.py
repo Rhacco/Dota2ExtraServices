@@ -47,7 +47,6 @@ def update_realtime_stats():
                 log('Removing %s on %s, failed realt. stats update too often' %
                         (str(match_id), str(live_match['server_id'])))
                 to_remove.append(match_id)
-            pass
     for match_id in to_remove:
         remove(match_id)
         fail_counters.pop(match_id)
@@ -110,13 +109,13 @@ def set_realtime_stats(live_match, realtime_stats):
             str(player['death_count']), str(player['assists_count']))
         live_match['players'][index]['score_kda'] = score_kda
     if 'heroes' in live_match:
-        return  # heroes are already assigned, nothing more to do
+        return  # all heroes are already assigned, nothing more to do
     heroes = []
     for player in players:
         heroes.append(player['heroid'])
-    if (len(heroes) == 10 and heroes[0] > 0 and heroes[1] > 0):
+    if len(heroes) == 10 and heroes[9] > 0:  # if all heroes are assigned
         live_match['heroes'] = heroes
-    else:  # heroes not assigned yet
+    else:
         live_match['gold_advantage'] = 0
         live_match['elapsed_time'] = 0
 

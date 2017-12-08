@@ -47,7 +47,6 @@ def handle_finished_matches():
                     log('Removing %s on %s, failed handle finished too often' %
                             (str(match_id), str(live_match['server_id'])))
                     to_remove_failed.append(match_id)
-                pass
     for match_id in to_remove_finished:
         top_live_matches.remove(match_id)
         __finished_matches.pop(match_id)
@@ -70,10 +69,10 @@ def __convert(live_match, steam_finished_match):
     converted = deepcopy(live_match)
     realtime_stats = api.dota2_get_realtime_stats(live_match['server_id'])
     top_live_matches.set_realtime_stats(converted, realtime_stats)
-    converted['duration'] = steam_finished_match['duration']
-    converted['radiant_win'] = steam_finished_match['radiant_win']
     converted.pop('server_id')
     converted.pop('delay')
     converted.pop('spectators')
     converted.pop('elapsed_time')
+    converted['duration'] = steam_finished_match['duration']
+    converted['radiant_win'] = steam_finished_match['radiant_win']
     return converted
