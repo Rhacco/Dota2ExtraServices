@@ -44,8 +44,6 @@ def handle_finished_matches():
                     __fail_counters[match_id] = 0
                 __fail_counters[match_id] += 1
                 if __fail_counters[match_id] >= 10:
-                    log('Removing %s on %s, failed handle finished too often' %
-                            (str(match_id), str(live_match['server_id'])))
                     to_remove_failed.append(match_id)
     for match_id in to_remove_finished:
         top_live_matches.remove(match_id)

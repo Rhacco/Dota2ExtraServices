@@ -44,8 +44,6 @@ def update_realtime_stats():
                 fail_counters[match_id] = 0
             fail_counters[match_id] += 1
             if fail_counters[match_id] >= 10:
-                log('Removing %s on %s, failed realt. stats update too often' %
-                        (str(match_id), str(live_match['server_id'])))
                 to_remove.append(match_id)
     for match_id in to_remove:
         remove(match_id)
@@ -60,7 +58,6 @@ def remove(match_id):
         if match_id == live_match['match_id']:
             __data.pop(server_id)
             return
-    log('Failed to remove %s: Match ID not registered' % str(match_id))
 
 def __convert(steam_live_match, realtime_stats):  # only keep relevant data
     converted = {}
