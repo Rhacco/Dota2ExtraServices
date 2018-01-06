@@ -6,12 +6,10 @@ import top_live_matches
 import top_recent_matches
 
 from flask import Flask, jsonify
-from werkzeug.contrib.fixers import ProxyFix
 import threading
 import time
 
 app = Flask(__name__)
-app.wsgi_app = ProxyFix(app.wsgi_app)  # logs visitors' IPs through proxy
 
 @app.route('/', methods=['GET'])
 def get_index():
