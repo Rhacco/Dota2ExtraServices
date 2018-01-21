@@ -5,7 +5,7 @@ import datetime
 
 data = {}
 regions = ['americas', 'europe', 'se_asia', 'china']
-__entries = {'americas': {}, 'europe': {}, 'se_asia': {}, 'china': {}}
+__top_100_entries = {'americas': {}, 'europe': {}, 'se_asia': {}, 'china': {}}
 __expiration_date = datetime.datetime.now()
 
 def update():
@@ -31,18 +31,23 @@ def update():
                         new_entry['name'] = entry['name']
                 except:
                     new_entry['name'] = entry['name']
-                if new_entry['name'] in __entries[region]:
-                    old_entry = __entries[region][new_entry['name']]
+                rank_change = ''
+                if new_entry['name'] in __top_100_entries[region]:
+                    old_entry = __top_100_entries[region][new_entry['name']]
                     if new_entry['rank'] > old_entry['rank']:
-                        new_entry['rank_change'] = 'up'
+                        rank_change = 'up'
                     elif new_entry['rank'] < old_entry['rank']:
-                        new_entry['rank_change'] = 'down'
+                        rank_change = 'down'
                     else:
-                        new_entry['rank_change'] = 'same'
+                        rank_change = 'same'
                 else:
-                    new_entry['rank_change'] = 'same'
+                    rank_change = 'up'
+                if new_entry['rank'] <= 100:
+                    new_entry['rank_change'] = rank_change
+                    __top_100_entries[region][new_entry['name']] = new_entry
+                elif new_entry['name'] in __top_100_entries[region]:
+                    __top_100_entries[region].pop(new_entry['name'])
                 new_leaderboard.append(new_entry)
-                __entries[region][new_entry['name']] = new_entry
             data[region] = new_leaderboard
         __expiration_date = now + datetime.timedelta(days=1)
         log('Updated leaderboards')
