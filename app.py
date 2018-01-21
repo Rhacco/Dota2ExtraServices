@@ -4,8 +4,9 @@ import items
 import pro_players
 import top_live_matches
 import top_recent_matches
+import leaderboards
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import threading
 import time
 
@@ -32,9 +33,23 @@ def get_top_live_matches():
 def get_top_recent_matches():
     return jsonify(list(top_recent_matches.data.values()))
 
+@app.route('/Leaderboard', methods=['GET'])
+def get_leaderboard():
+    region = request.args.get('region')
+    if region is not None:
+        if region in leaderboards.data:
+            return jsonify(leaderboards.data[region])
+        else:
+            return ('Parameter \'region\' is invalid, must be either '
+                    '\'americas\', \'europe\', \'se_asia\' or \'china\'.')
+    else:
+        return ('Required parameter \'region\' is missing, must be either '
+                '\'americas\', \'europe\', \'se_asia\' or \'china\'.')
+
 def update_loop():
     while True:
         pro_players.update()
+        leaderboards.update()
         top_live_matches.fetch_new_matches()
         top_recent_matches.handle_finished_matches()
         top_live_matches.update_realtime_stats()

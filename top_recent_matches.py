@@ -1,4 +1,3 @@
-from utilities import log
 import api
 import top_live_matches
 
