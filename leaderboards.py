@@ -34,9 +34,9 @@ def update():
                 rank_change = ''
                 if new_entry['name'] in __top_100_entries[region]:
                     old_entry = __top_100_entries[region][new_entry['name']]
-                    if new_entry['rank'] > old_entry['rank']:
+                    if new_entry['rank'] < old_entry['rank']:
                         rank_change = 'up'
-                    elif new_entry['rank'] < old_entry['rank']:
+                    elif new_entry['rank'] > old_entry['rank']:
                         rank_change = 'down'
                     else:
                         rank_change = 'same'
