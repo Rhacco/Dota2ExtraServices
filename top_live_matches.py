@@ -3,7 +3,7 @@ import top_recent_matches
 import pro_players
 
 data = []  # sorted by descending average MMR, tournament matches first
-__data = {}  # for convenient internal use, unsorted
+_data = {}  # for convenient internal use, unsorted
 fail_counters = {}  # compensate for corrupt API calls occurring sometimes
 
 def fetch_new_matches():
@@ -14,9 +14,9 @@ def fetch_new_matches():
         return
     for steam_live_match in steam_result:
         server_id = int(steam_live_match['server_steam_id'])
-        if server_id in __data:
+        if server_id in _data:
             try:
-                live_match = __data[server_id]
+                live_match = _data[server_id]
                 live_match['spectators'] = steam_live_match['spectators']
             except:
                 pass
@@ -25,15 +25,15 @@ def fetch_new_matches():
                 realtime_stats = api.dota2_get_realtime_stats(server_id)
                 match_id = int(realtime_stats['match']['matchid'])
                 if match_id not in top_recent_matches.data and match_id > 0:
-                    converted = __convert(steam_live_match, realtime_stats)
-                    __data[server_id] = converted
-                    __insert_sorted(converted)
+                    converted = _convert(steam_live_match, realtime_stats)
+                    _data[server_id] = converted
+                    _insert_sorted(converted)
             except:
                 pass
 
 def update_realtime_stats():
     to_remove = []
-    for server_id, live_match in __data.items():
+    for server_id, live_match in _data.items():
         try:
             realtime_stats = api.dota2_get_realtime_stats(server_id)
             set_realtime_stats(live_match, realtime_stats)
@@ -53,12 +53,12 @@ def remove(match_id):
         if match_id == live_match['match_id']:
             data.pop(index)
             break
-    for server_id, live_match in __data.items():
+    for server_id, live_match in _data.items():
         if match_id == live_match['match_id']:
-            __data.pop(server_id)
+            _data.pop(server_id)
             return
 
-def __convert(steam_live_match, realtime_stats):  # only keep relevant data
+def _convert(steam_live_match, realtime_stats):  # only keep relevant data
     converted = {}
     converted['server_id'] = int(steam_live_match['server_steam_id'])
     converted['match_id'] = int(realtime_stats['match']['matchid'])
@@ -115,7 +115,7 @@ def set_realtime_stats(live_match, realtime_stats):
         live_match['gold_advantage'] = 0
         live_match['elapsed_time'] = 0
 
-def __insert_sorted(new_live_match):
+def _insert_sorted(new_live_match):
     if new_live_match['is_tournament_match']:
         data.insert(0, new_live_match)
     else:
