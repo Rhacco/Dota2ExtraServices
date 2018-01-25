@@ -31,20 +31,14 @@ def update():
                         new_entry['name'] = entry['name']
                 except:
                     new_entry['name'] = entry['name']
-                rank_change = ''
+                last_rank = 0
                 if new_entry['name'] in __top_100_entries[region]:
                     old_entry = __top_100_entries[region][new_entry['name']]
-                    if new_entry['rank'] < old_entry['rank']:
-                        rank_change = 'up'
-                    elif new_entry['rank'] > old_entry['rank']:
-                        rank_change = 'down'
-                    else:
-                        rank_change = 'same'
-                else:
-                    rank_change = 'up'
+                    last_rank = old_entry['rank']
                 if new_entry['rank'] <= 100:
-                    new_entry['rank_change'] = rank_change
                     __top_100_entries[region][new_entry['name']] = new_entry
+                    if last_rank > 0:
+                        new_entry['last_rank'] = last_rank
                 elif new_entry['name'] in __top_100_entries[region]:
                     __top_100_entries[region].pop(new_entry['name'])
                 new_leaderboard.append(new_entry)
