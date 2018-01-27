@@ -39,6 +39,8 @@ def update():
                     _top_100_entries[region][new_entry['name']] = new_entry
                     if last_rank > 0:
                         new_entry['last_rank'] = last_rank
+                    else:
+                        new_entry['new_in_top_100'] = True
                 elif new_entry['name'] in _top_100_entries[region]:
                     _top_100_entries[region].pop(new_entry['name'])
                 new_leaderboard.append(new_entry)
