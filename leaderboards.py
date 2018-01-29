@@ -7,9 +7,11 @@ data = {}
 regions = ['americas', 'europe', 'se_asia', 'china']
 _top_100_entries = {'americas': {}, 'europe': {}, 'se_asia': {}, 'china': {}}
 _expiration_date = datetime.datetime.now()
+_is_first_update = True
 
 def update():
     global _expiration_date
+    global _is_first_update
     now = datetime.datetime.now()
     if now > _expiration_date:
         for region in regions:
@@ -39,7 +41,7 @@ def update():
                     _top_100_entries[region][new_entry['name']] = new_entry
                     if last_rank > 0:
                         new_entry['last_rank'] = last_rank
-                    else:
+                    elif not _is_first_update:
                         new_entry['new_in_top_100'] = True
                 elif new_entry['name'] in _top_100_entries[region]:
                     _top_100_entries[region].pop(new_entry['name'])
@@ -47,3 +49,4 @@ def update():
             data[region] = new_leaderboard
         _expiration_date = now + datetime.timedelta(days=1)
         log('Updated leaderboards')
+        _is_first_update = False
