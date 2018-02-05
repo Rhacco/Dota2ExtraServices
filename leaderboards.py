@@ -47,6 +47,6 @@ def update():
                     _top_100_entries[region].pop(new_entry['name'])
                 new_leaderboard.append(new_entry)
             data[region] = new_leaderboard
-        _expiration_date = now + datetime.timedelta(days=1)
+        _expiration_date = now + datetime.timedelta(hours=1)
         log('Updated leaderboards')
         _is_first_update = False

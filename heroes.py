@@ -9,7 +9,7 @@ def update():
     for _, hero in heroes.items():
         hero['abilities'] = []
         hero['talents'] = []
-        data.append(hero)
+        _insert_sorted(hero)
         data_by_hero_name[hero['name']] = hero
     hero_abilities = json.load(open(dotaconstants + 'hero_abilities.json'))
     abilities = json.load(open(dotaconstants + 'abilities.json'))
@@ -31,3 +31,10 @@ def update():
                 if 'dname' in abilities[talent['name']]:
                     data_by_hero_name[hero_name]['talents'].append(
                             abilities[talent['name']]['dname'])
+
+def _insert_sorted(new_hero):
+    for index, hero in enumerate(data):
+        if new_hero['localized_name'] < hero['localized_name']:
+            data.insert(index, new_hero)
+            return
+    data.append(new_hero)
