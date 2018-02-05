@@ -57,8 +57,8 @@ def update_loop():
 
 if __name__ == '__main__':
     log('Initializing')
-    heroes.fetch()
-    items.fetch()
+    heroes.update()
+    items.update()
     background_updater = threading.Thread(target=update_loop)
     background_updater.daemon = True
     background_updater.start()

@@ -1,5 +1,7 @@
 __pycache__
+node_modules
 *.swp
 Makefile
 config.py
 logs*
+*.json
