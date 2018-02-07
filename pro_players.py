@@ -19,5 +19,5 @@ def update():
         data.clear()
         for pro_player in opendota_pro_players:
             data[int(pro_player['account_id'])] = pro_player
-        _expiration_date = now + datetime.timedelta(days=1)
+        _expiration_date = _expiration_date + datetime.timedelta(days=1)
         log('Updated pro players')

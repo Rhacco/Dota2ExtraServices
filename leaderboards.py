@@ -38,15 +38,17 @@ def update():
                     old_entry = _top_100_entries[region][new_entry['name']]
                     last_rank = old_entry['rank']
                 if new_entry['rank'] <= 100:
-                    _top_100_entries[region][new_entry['name']] = new_entry
-                    if last_rank > 0:
-                        new_entry['last_rank'] = last_rank
-                    elif not _is_first_update:
-                        new_entry['new_in_top_100'] = True
+                    name = new_entry['name']
+                    if name and not name.isspace():      # ignore empty names
+                        if not name == len(name) * '.':  # and only dots
+                            _top_100_entries[region][name] = new_entry
+                            if last_rank > 0:
+                                new_entry['last_rank'] = last_rank
+                            elif not _is_first_update:
+                                new_entry['new_in_top_100'] = True
                 elif new_entry['name'] in _top_100_entries[region]:
                     _top_100_entries[region].pop(new_entry['name'])
                 new_leaderboard.append(new_entry)
             data[region] = new_leaderboard
-        _expiration_date = now + datetime.timedelta(hours=1)
-        log('Updated leaderboards')
+        _expiration_date = _expiration_date + datetime.timedelta(hours=1)
         _is_first_update = False
