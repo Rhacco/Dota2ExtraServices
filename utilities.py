@@ -13,6 +13,6 @@ def log(message):
 def list_to_string(string_list, separator):
     string = ''
     for entry in string_list:
-        if entry:  # entries are None/null sometimes
+        if entry and entry != 'Hidden':  # entries are null/hidden sometimes
             string += entry + separator
     return string[:len(string) - len(separator)]
