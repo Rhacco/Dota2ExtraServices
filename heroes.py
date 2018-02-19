@@ -1,5 +1,6 @@
 import json
 from utilities import list_to_string
+from utilities import make_camel_case
 
 data = []
 
@@ -34,10 +35,11 @@ def update():
                             abilities[talent['name']]['dname'])
 
 def _convert(ability):
-    # Convert some lists of strings to only one string
+    # Convert some lists of strings to only one string and capitalize CamelCase
     if isinstance(ability['behavior'], list):
         ability['behavior'] = list_to_string(ability['behavior'], ', ')
     for attrib in ability['attrib']:
+        attrib['header'] = make_camel_case(attrib['header'].replace('\\n', ''))
         if isinstance(attrib['value'], list):
             attrib['value'] = list_to_string(attrib['value'], ' / ')
     if 'cd' in ability and isinstance(ability['cd'], list):

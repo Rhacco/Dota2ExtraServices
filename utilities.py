@@ -1,5 +1,6 @@
 import datetime
 import logging
+import re
 
 logs = 'logs_' + str(datetime.date.today())
 logging.basicConfig(format='%(message)s', filename=logs, level=logging.DEBUG)
@@ -16,3 +17,6 @@ def list_to_string(string_list, separator):
         if entry and entry != 'Hidden':  # entries are null/hidden sometimes
             string += entry + separator
     return string[:len(string) - len(separator)]
+
+def make_camel_case(string):
+    return re.sub(r'\w+', lambda m:m.group(0).capitalize(), string)
