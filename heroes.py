@@ -1,4 +1,5 @@
 import json
+from utilities import list_to_string
 
 data = []
 
@@ -17,12 +18,12 @@ def update():
         for ability_key in values['abilities']:
             if 'hidden' not in ability_key and 'empty' not in ability_key:
                 data_by_hero_name[hero_name]['abilities'].append(
-                        abilities[ability_key])
+                        _convert(abilities[ability_key]))
         if hero_name == 'npc_dota_hero_invoker':
             for talent in values['talents']:
                 if talent['name'].startswith('invoker_'):
                     data_by_hero_name[hero_name]['abilities'].append(
-                            abilities[talent['name']])
+                        _convert(abilities[talent['name']]))
                 else:
                     data_by_hero_name[hero_name]['talents'].append(
                             abilities[talent['name']]['dname'])
@@ -31,6 +32,19 @@ def update():
                 if 'dname' in abilities[talent['name']]:
                     data_by_hero_name[hero_name]['talents'].append(
                             abilities[talent['name']]['dname'])
+
+def _convert(ability):
+    # Convert some lists of strings to only one string
+    if isinstance(ability['behavior'], list):
+        ability['behavior'] = list_to_string(ability['behavior'], ', ')
+    for attrib in ability['attrib']:
+        if isinstance(attrib['value'], list):
+            attrib['value'] = list_to_string(attrib['value'], ' / ')
+    if 'cd' in ability and isinstance(ability['cd'], list):
+        ability['cd'] = list_to_string(ability['cd'], ' / ')
+    if 'mc' in ability and isinstance(ability['mc'], list):
+        ability['mc'] = list_to_string(ability['mc'], ' / ')
+    return ability
 
 def _insert_sorted(new_hero):
     for index, hero in enumerate(data):
