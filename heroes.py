@@ -39,7 +39,8 @@ def _convert(ability):
     if isinstance(ability['behavior'], list):
         ability['behavior'] = list_to_string(ability['behavior'], ', ')
     for attrib in ability['attrib']:
-        attrib['header'] = make_camel_case(attrib['header'].replace('\\n', ''))
+        converted = make_camel_case(attrib['header'].replace('\\n', ''))
+        attrib['header'] = converted.replace(' Hp ', ' HP ')
         if isinstance(attrib['value'], list):
             attrib['value'] = list_to_string(attrib['value'], ' / ')
     if 'cd' in ability and isinstance(ability['cd'], list):
