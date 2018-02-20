@@ -9,6 +9,8 @@ def update():
     heroes = json.load(open(dotaconstants + 'heroes.json'))
     data_by_hero_name = {}
     for _, hero in heroes.items():
+        if isinstance(hero['roles'], list):
+            hero['roles'] = list_to_string(hero['roles'], ', ')
         hero['abilities'] = []
         hero['talents'] = []
         _insert_sorted(hero)
@@ -35,7 +37,6 @@ def update():
                             abilities[talent['name']]['dname'])
 
 def _convert(ability):
-    # Convert some lists of strings to only one string and capitalize CamelCase
     if isinstance(ability['behavior'], list):
         ability['behavior'] = list_to_string(ability['behavior'], ', ')
     for attrib in ability['attrib']:
