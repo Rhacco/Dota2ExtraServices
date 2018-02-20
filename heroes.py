@@ -9,6 +9,12 @@ def update():
     heroes = json.load(open(dotaconstants + 'heroes.json'))
     data_by_hero_name = {}
     for _, hero in heroes.items():
+        if hero['primary_attr'] == 'str':
+            hero['primary_attr'] = 'Strength'
+        elif hero['primary_attr'] == 'agi':
+            hero['primary_attr'] = 'Agility'
+        else:
+            hero['primary_attr'] = 'Intelligence'
         if isinstance(hero['roles'], list):
             hero['roles'] = list_to_string(hero['roles'], ', ')
         hero['abilities'] = []
