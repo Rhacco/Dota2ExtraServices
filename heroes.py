@@ -43,6 +43,8 @@ def update():
                             abilities[talent['name']]['dname'])
 
 def _convert(ability):
+    if 'desc' in ability:
+        ability['desc'] = ability['desc'].replace('  ', ' ')
     if isinstance(ability['behavior'], list):
         ability['behavior'] = list_to_string(ability['behavior'], ', ')
     for attrib in ability['attrib']:
