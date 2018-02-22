@@ -2,36 +2,34 @@ from utilities import list_to_string
 from utilities import make_camel_case
 
 import json
-import api
 import re
 
 data = []
 
 def update():
     items = json.load(open('node_modules/dotaconstants/build/items.json'))
-    data_by_item_id = {}
     for _, item in items.items():
-        if _insert_sorted(_convert(item)):
-            data_by_item_id[item['id']] = item
-    steam_items = api.dota2.get_game_items()
-    for item in steam_items['items']:
-        if item['id'] not in data_by_item_id:
-            continue
-        data_by_item_id[item['id']]['is_recipe'] = item['recipe'] == 1
-        data_by_item_id[item['id']]['in_secret_shop'] = item['secret_shop'] == 1
-        data_by_item_id[item['id']]['in_side_shop'] = item['side_shop'] == 1
+        _insert_sorted(_convert(item))
 
 def _convert(item):
     if 'dname' not in item:
         return item
-    item['desc'] = _fix_spaces(item['desc'])
-    item['notes'] = _fix_spaces(item['notes'])
     for attrib in item['attrib']:
         converted = make_camel_case(attrib['header'].replace('\\n', ''))
         attrib['header'] = converted.replace('Hp', 'HP')
         if isinstance(attrib['value'], list):
             attrib['value'] = list_to_string(attrib['value'], ' / ')
-    if item['dname'] == 'Boots of Travel':
+    if isinstance(item['mc'], bool):
+        item.pop('mc')
+    if isinstance(item['cd'], bool):
+        item.pop('cd')
+    item['desc'] = _fix_spaces(item['desc'])
+    item['desc'] = re.sub(r'[\n]{1,}', '\n\n', item['desc'])
+    item['notes'] = _fix_spaces(item['notes'])
+    item['notes'] = re.sub(r'[\n]{1,}', '\n\n', item['notes'])
+    if item['dname'] == 'Cheese' or item['dname'] == 'Refresher Shard':
+        item['cost'] = 0
+    elif item['dname'] == 'Boots of Travel':
         if item['id'] == 48:
             item['dname'] += ' 1'
         else:
@@ -67,13 +65,13 @@ def _fix_spaces(string):
 
 def _insert_sorted(new_item):
     if 'dname' not in new_item:
-        return False
+        return
     if new_item['dname'].startswith('River Vial'):
-        return False
+        return
     for index, item in enumerate(data):
         if new_item['dname'] == item['dname']:
             print('\n!!! Need to convert !!!\n\n', new_item)
         if new_item['dname'] < item['dname']:
             data.insert(index, new_item)
-            return True
+            return
     data.append(new_item)
