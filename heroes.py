@@ -1,6 +1,7 @@
-import json
 from utilities import list_to_string
 from utilities import make_camel_case
+
+import json
 
 data = []
 
@@ -49,7 +50,7 @@ def _convert(ability):
         ability['behavior'] = list_to_string(ability['behavior'], ', ')
     for attrib in ability['attrib']:
         converted = make_camel_case(attrib['header'].replace('\\n', ''))
-        attrib['header'] = converted.replace(' Hp ', ' HP ')
+        attrib['header'] = converted.replace('Hp', 'HP')
         if isinstance(attrib['value'], list):
             attrib['value'] = list_to_string(attrib['value'], ' / ')
     if 'cd' in ability and isinstance(ability['cd'], list):
