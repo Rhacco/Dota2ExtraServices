@@ -7,9 +7,21 @@ import re
 data = []
 
 def update():
-    items = json.load(open('node_modules/dotaconstants/build/items.json'))
+    dotaconstants = 'node_modules/dotaconstants/build/'
+    items = json.load(open(dotaconstants + 'items.json'))
+    item_names = json.load(open(dotaconstants + 'item_ids.json'))
+    data_by_item_name = {}
     for _, item in items.items():
-        _insert_sorted(_convert(item))
+        converted = _convert(item)
+        if _insert_sorted(converted):
+            data_by_item_name[item_names[str(item['id'])]] = converted
+    for item in data:
+        if item['components'] is None:
+            continue
+        components = []
+        for component in item['components']:
+            components.append(data_by_item_name[component]['dname'])
+        item['components'] = list_to_string(components, ', ')
 
 def _convert(item):
     if 'dname' not in item:
@@ -65,13 +77,14 @@ def _fix_spaces(string):
 
 def _insert_sorted(new_item):
     if 'dname' not in new_item:
-        return
+        return False
     if new_item['dname'].startswith('River Vial'):
-        return
+        return False
     for index, item in enumerate(data):
         if new_item['dname'] == item['dname']:
             print('\n!!! Need to convert !!!\n\n', new_item)
         if new_item['dname'] < item['dname']:
             data.insert(index, new_item)
-            return
+            return True
     data.append(new_item)
+    return True
