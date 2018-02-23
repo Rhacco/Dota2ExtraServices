@@ -5,6 +5,7 @@ import json
 import re
 
 data = []
+_removed_items = [196]
 
 def update():
     dotaconstants = 'node_modules/dotaconstants/build/'
@@ -57,11 +58,6 @@ def _convert(item):
             item['dname'] += ' 4'
         else:
             item['dname'] += ' 5'
-    elif item['dname'] == 'Diffusal Blade':
-        if item['id'] == 174:
-            item['dname'] += ' 1'
-        else:
-            item['dname'] += ' 2'
     elif item['dname'] == 'Necronomicon':
         if item['id'] == 106:
             item['dname'] += ' 1'
@@ -76,7 +72,7 @@ def _fix_spaces(string):
     return re.sub(r'([.|a-z|0-9])([A-Z])', r'\1 \2', string)
 
 def _insert_sorted(new_item):
-    if 'dname' not in new_item:
+    if 'dname' not in new_item or new_item['id'] in _removed_items:
         return False
     if new_item['dname'].startswith('River Vial'):
         return False
