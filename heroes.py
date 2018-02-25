@@ -4,6 +4,7 @@ from utilities import make_camel_case
 import json
 
 data = []
+data_by_hero_id = {}
 
 def update():
     dotaconstants = 'node_modules/dotaconstants/build/'
@@ -22,6 +23,7 @@ def update():
         hero['talents'] = []
         _insert_sorted(hero)
         data_by_hero_name[hero['name']] = hero
+        data_by_hero_id[hero['id']] = hero
     hero_abilities = json.load(open(dotaconstants + 'hero_abilities.json'))
     abilities = json.load(open(dotaconstants + 'abilities.json'))
     for hero_name, values in hero_abilities.items():

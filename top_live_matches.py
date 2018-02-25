@@ -1,9 +1,11 @@
 import api
 import top_recent_matches
 import pro_players
+import heroes
+from utilities import list_to_string
 
 data = []  # sorted by descending average MMR, tournament matches first
-_data = {}  # for convenient internal use, unsorted
+_data = {}  # for convenient internal use
 fail_counters = {}  # compensate for corrupt API calls occurring sometimes
 
 def fetch_new_matches():
@@ -86,7 +88,9 @@ def _convert(steam_live_match, realtime_stats):  # only keep relevant data
                     official_name = pro_data['team_tag'] + '.' + official_name
                 new_player['official_name'] = official_name
                 if converted['is_tournament_match']:
-                    new_player.pop('current_steam_name')
+                    new_player['current_steam_name'] = ''
+            else:
+                new_player['official_name'] = ''
             converted['players'].append(new_player)
     set_realtime_stats(converted, realtime_stats)
     return converted
@@ -104,13 +108,17 @@ def set_realtime_stats(live_match, realtime_stats):
         score_kda = '%s/%s/%s' % (str(player['kill_count']),
             str(player['death_count']), str(player['assists_count']))
         live_match['players'][index]['score_kda'] = score_kda
-    if 'heroes' in live_match:
+    if 'hero_ids' in live_match:
         return  # all heroes are already assigned, nothing more to do
-    heroes = []
+    hero_ids = []
     for player in players:
-        heroes.append(player['heroid'])
-    if len(heroes) == 10 and heroes[9] > 0:  # if all heroes are assigned
-        live_match['heroes'] = heroes
+        hero_ids.append(player['heroid'])
+    if len(hero_ids) == 10 and hero_ids[9] > 0:  # if all heroes are assigned
+        live_match['hero_ids'] = hero_ids
+        hero_names = []
+        for hero_id in hero_ids:
+            hero_names.append(heroes.data_by_hero_id[hero_id]['localized_name'])
+        live_match['hero_names'] = list_to_string(hero_names, ', ')
     else:
         live_match['gold_advantage'] = 0
         live_match['elapsed_time'] = 0

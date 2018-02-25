@@ -59,7 +59,7 @@ def handle_finished_matches():
         _fail_counters.pop(match_id)
         if match_id in top_live_matches.fail_counters:
             top_live_matches.fail_counters.pop(match_id)
-    while len(data) > 20:  # only keep most recent top matches
+    while len(data) > 50:  # only keep most recent top matches
         data.popitem()
 
 def _convert(live_match, steam_finished_match):
