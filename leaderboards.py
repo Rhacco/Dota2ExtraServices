@@ -1,15 +1,18 @@
 from utilities import log
 import api
 
+import time
 import datetime
 
 data = {}
 regions = ['americas', 'europe', 'se_asia', 'china']
+last_update = 0
 _top_100_entries = {'americas': {}, 'europe': {}, 'se_asia': {}, 'china': {}}
 _expiration_date = datetime.datetime.now()
 _is_first_update = True
 
 def update():
+    global last_update
     global _expiration_date
     global _is_first_update
     now = datetime.datetime.now()
@@ -18,9 +21,8 @@ def update():
             dota2_leaderboard = []
             try:
                 dota2_leaderboard = api.dota2_get_leaderboard(region)
-            except Exception as e:
-                log('Failed to update a leaderboard: ' + str(e))
-                return
+            except:
+                continue
             new_leaderboard = []
             for index, entry in enumerate(dota2_leaderboard):
                 new_entry = {}
@@ -50,5 +52,6 @@ def update():
                     _top_100_entries[region].pop(new_entry['name'])
                 new_leaderboard.append(new_entry)
             data[region] = new_leaderboard
+        last_update = time.time()
         _expiration_date = _expiration_date + datetime.timedelta(hours=1)
         _is_first_update = False

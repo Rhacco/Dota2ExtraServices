@@ -3,11 +3,14 @@ from utilities import make_camel_case
 
 import json
 import re
+import time
 
 data = []
+last_update = 0
 _removed_items = [196]
 
 def update():
+    global last_update
     dotaconstants = 'node_modules/dotaconstants/build/'
     items = json.load(open(dotaconstants + 'items.json'))
     item_names = json.load(open(dotaconstants + 'item_ids.json'))
@@ -23,6 +26,7 @@ def update():
         for component in item['components']:
             components.append(data_by_item_name[component]['dname'])
         item['components'] = list_to_string(components, ', ')
+    last_update = time.time()
 
 def _convert(item):
     if 'dname' not in item:

@@ -13,7 +13,7 @@ def dota2_get_realtime_stats(server_id):
 
 def dota2_get_leaderboard(region):
     url = ('http://www.dota2.com/webapi/ILeaderboard/GetDivisionLeaderboard/'
-            'v0001?division=%s' % region)
+           'v0001?division=%s' % region)
     return _fetch(url)['leaderboard']
 
 def opendota_get_pro_players():

@@ -46,6 +46,15 @@ def get_leaderboard():
         return ('Required parameter \'region\' is missing, must be either '
                 '\'americas\', \'europe\', \'se_asia\' or \'china\'.')
 
+@app.route('/LastUpdates', methods=['GET'])
+def get_last_updates():
+    return jsonify(
+            {
+                'heroes': heroes.last_update,
+                'items': items.last_update,
+                'leaderboards': leaderboards.last_update
+            })
+
 def update_loop():
     while True:
         pro_players.update()

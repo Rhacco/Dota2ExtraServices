@@ -2,11 +2,14 @@ from utilities import list_to_string
 from utilities import make_camel_case
 
 import json
+import time
 
 data = []
 data_by_hero_id = {}
+last_update = 0
 
 def update():
+    global last_update
     dotaconstants = 'node_modules/dotaconstants/build/'
     heroes = json.load(open(dotaconstants + 'heroes.json'))
     data_by_hero_name = {}
@@ -44,6 +47,7 @@ def update():
                 if 'dname' in abilities[talent['name']]:
                     data_by_hero_name[hero_name]['talents'].append(
                             abilities[talent['name']]['dname'])
+    last_update = time.time()
 
 def _convert(ability):
     if 'desc' in ability:
