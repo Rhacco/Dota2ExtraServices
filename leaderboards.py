@@ -22,7 +22,7 @@ def update():
             try:
                 dota2_leaderboard = api.dota2_get_leaderboard(region)
             except:
-                continue
+                return
             new_leaderboard = []
             for index, entry in enumerate(dota2_leaderboard):
                 new_entry = {}
