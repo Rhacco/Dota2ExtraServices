@@ -7,6 +7,7 @@ import time
 data = []
 data_by_hero_id = {}
 last_update = 0
+_removed_abilities = ['Morph Replicate']
 
 def update():
     global last_update
@@ -32,8 +33,11 @@ def update():
     for hero_name, values in hero_abilities.items():
         for ability_key in values['abilities']:
             if 'hidden' not in ability_key and 'empty' not in ability_key:
-                data_by_hero_name[hero_name]['abilities'].append(
-                        _convert(abilities[ability_key]))
+                ability = abilities[ability_key]
+                if 'dname' in ability and ability['behavior'] != 'Hidden':
+                    if ability['dname'] not in _removed_abilities:
+                        data_by_hero_name[hero_name]['abilities'].append(
+                                _convert(ability))
         if hero_name == 'npc_dota_hero_invoker':
             for talent in values['talents']:
                 if talent['name'].startswith('invoker_'):
