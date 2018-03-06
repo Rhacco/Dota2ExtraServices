@@ -23,8 +23,14 @@ def update():
         if item['components'] is None:
             continue
         components = []
-        for component in item['components']:
-            components.append(data_by_item_name[component]['dname'])
+        for component_name in item['components']:
+            component = data_by_item_name[component_name]
+            name_with_cost = component['dname']
+            name_with_cost += ' (' + str(component['cost']) + ')'
+            components.append(name_with_cost)
+        recipe = _data_by_item_dname(item['dname'] + ' Recipe')
+        if recipe:
+            components.append('Recipe (' + str(recipe['cost']) + ')')
         item['components'] = list_to_string(components, ', ')
     last_update = time.time()
 
@@ -88,3 +94,9 @@ def _insert_sorted(new_item):
             return True
     data.append(new_item)
     return True
+
+def _data_by_item_dname(item_dname):
+    for item in data:
+        if item['dname'] == item_dname:
+            return item
+    return None
