@@ -78,7 +78,7 @@ def _convert(item):
     return item
 
 def _fix_spaces(string):
-    string = string.replace('  ', ' ')
+    string = re.sub(r'[ ]{1,}', ' ', string)
     return re.sub(r'([.|a-z|0-9])([A-Z])', r'\1 \2', string)
 
 def _insert_sorted(new_item):
