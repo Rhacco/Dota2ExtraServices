@@ -7,7 +7,7 @@ import time
 
 data = []
 last_update = 0
-_removed_items = [196]
+_removed_items = [71, 196]
 
 def update():
     global last_update
