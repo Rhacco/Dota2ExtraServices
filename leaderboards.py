@@ -1,4 +1,3 @@
-from utilities import log
 import api
 
 import time
@@ -9,6 +8,7 @@ regions = ['americas', 'europe', 'se_asia', 'china']
 last_update = 0
 _top_100_entries = {'americas': {}, 'europe': {}, 'se_asia': {}, 'china': {}}
 _expiration_date = datetime.datetime.now()
+
 
 def update():
     global last_update
@@ -26,7 +26,7 @@ def update():
                 new_entry = {}
                 new_entry['rank'] = index + 1
                 try:
-                    team_tag = entry['team_tag'] 
+                    team_tag = entry['team_tag']
                     if team_tag:
                         new_entry['name'] = team_tag + '.' + entry['name']
                     else:

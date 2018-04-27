@@ -8,30 +8,35 @@ import leaderboards
 
 from flask import Flask, jsonify, request
 import threading
-import time
 
 app = Flask(__name__)
 
+
 @app.route('/', methods=['GET'])
 def get_index():
-    return ('Additional Dota 2 services not directly available in the Steam Web'
-            ' API. See https://github.com/Rhacco/Dota2ExtraServices')
+    return ('Additional Dota 2 services not directly available in the Steam '
+            'Web API. See https://github.com/Rhacco/Dota2ExtraServices')
+
 
 @app.route('/Heroes', methods=['GET'])
 def get_heroes():
     return jsonify(heroes.data)
 
+
 @app.route('/Items', methods=['GET'])
 def get_items():
     return jsonify(items.data)
+
 
 @app.route('/TopLiveMatches', methods=['GET'])
 def get_top_live_matches():
     return jsonify(top_live_matches.data)
 
+
 @app.route('/TopRecentMatches', methods=['GET'])
 def get_top_recent_matches():
     return jsonify(list(top_recent_matches.data.values()))
+
 
 @app.route('/Leaderboard', methods=['GET'])
 def get_leaderboard():
@@ -46,14 +51,15 @@ def get_leaderboard():
         return ('Required parameter \'region\' is missing, must be either '
                 '\'americas\', \'europe\', \'se_asia\' or \'china\'.')
 
+
 @app.route('/LastUpdates', methods=['GET'])
 def get_last_updates():
-    return jsonify(
-            {
-                'heroes': heroes.last_update,
-                'items': items.last_update,
-                'leaderboards': leaderboards.last_update
-            })
+    return jsonify({
+        'heroes': heroes.last_update,
+        'items': items.last_update,
+        'leaderboards': leaderboards.last_update
+    })
+
 
 def update_loop():
     while True:
@@ -63,6 +69,7 @@ def update_loop():
         top_recent_matches.handle_finished_matches()
         top_live_matches.update_realtime_stats()
         top_recent_matches.fetch_finished_matches()
+
 
 if __name__ == '__main__':
     log('Initializing')

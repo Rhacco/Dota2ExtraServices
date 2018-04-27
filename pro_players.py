@@ -6,6 +6,7 @@ import datetime
 data = {}
 _expiration_date = datetime.datetime.now()
 
+
 def update():
     global _expiration_date
     now = datetime.datetime.now()

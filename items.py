@@ -9,6 +9,7 @@ data = []
 last_update = 0
 _removed_items = [71, 196]
 
+
 def update():
     global last_update
     dotaconstants = 'node_modules/dotaconstants/build/'
@@ -33,6 +34,7 @@ def update():
             components.append('Recipe (' + str(recipe['cost']) + ')')
         item['components'] = list_to_string(components, ', ')
     last_update = time.time()
+
 
 def _convert(item):
     if 'dname' not in item:
@@ -77,9 +79,11 @@ def _convert(item):
             item['dname'] += ' 3'
     return item
 
+
 def _fix_spaces(string):
     string = re.sub(r'[ ]{1,}', ' ', string)
     return re.sub(r'([.|a-z|0-9])([A-Z])', r'\1 \2', string)
+
 
 def _insert_sorted(new_item):
     if 'dname' not in new_item or new_item['id'] in _removed_items:
@@ -94,6 +98,7 @@ def _insert_sorted(new_item):
             return True
     data.append(new_item)
     return True
+
 
 def _data_by_item_dname(item_dname):
     for item in data:

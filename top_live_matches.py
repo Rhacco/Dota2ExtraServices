@@ -8,6 +8,7 @@ data = []  # sorted by descending average MMR, tournament matches first
 _data = {}  # for convenient internal use
 fail_counters = {}  # compensate for corrupt API calls occurring sometimes
 
+
 def fetch_new_matches():
     steam_result = []
     try:
@@ -33,6 +34,7 @@ def fetch_new_matches():
             except:
                 pass
 
+
 def update_realtime_stats():
     to_remove = []
     for server_id, live_match in _data.items():
@@ -50,6 +52,7 @@ def update_realtime_stats():
         remove(match_id)
         fail_counters.pop(match_id)
 
+
 def remove(match_id):
     for index, live_match in enumerate(data):
         if match_id == live_match['match_id']:
@@ -59,6 +62,7 @@ def remove(match_id):
         if match_id == live_match['match_id']:
             _data.pop(server_id)
             return
+
 
 def _convert(steam_live_match, realtime_stats):  # only keep relevant data
     converted = {}
@@ -84,7 +88,7 @@ def _convert(steam_live_match, realtime_stats):  # only keep relevant data
             if steam_id in pro_players.data:
                 pro_data = pro_players.data[steam_id]
                 official_name = pro_data['name']
-                if pro_data['team_tag']:  # if pro player is in a team currently
+                if pro_data['team_tag']:  # if player is in a team currently
                     official_name = pro_data['team_tag'] + '.' + official_name
                 new_player['official_name'] = official_name
                 if converted['is_tournament_match']:
@@ -94,6 +98,7 @@ def _convert(steam_live_match, realtime_stats):  # only keep relevant data
             converted['players'].append(new_player)
     set_realtime_stats(converted, realtime_stats)
     return converted
+
 
 def set_realtime_stats(live_match, realtime_stats):
     live_match['radiant_score'] = realtime_stats['teams'][0]['score']
@@ -105,8 +110,9 @@ def set_realtime_stats(live_match, realtime_stats):
     players = realtime_stats['teams'][0]['players']
     players.extend(realtime_stats['teams'][1]['players'])
     for index, player in enumerate(players):
-        score_kda = '%s/%s/%s' % (str(player['kill_count']),
-            str(player['death_count']), str(player['assists_count']))
+        score_kda = '%s/%s/%s' % (
+            str(player['kill_count']), str(player['death_count']),
+            str(player['assists_count']))
         live_match['players'][index]['score_kda'] = score_kda
     if 'hero_ids' in live_match:
         return  # all heroes are already assigned, nothing more to do
@@ -117,11 +123,13 @@ def set_realtime_stats(live_match, realtime_stats):
         live_match['hero_ids'] = hero_ids
         hero_names = []
         for hero_id in hero_ids:
-            hero_names.append(heroes.data_by_hero_id[hero_id]['localized_name'])
+            hero_names.append(
+                heroes.data_by_hero_id[hero_id]['localized_name'])
         live_match['hero_names'] = list_to_string(hero_names, ', ')
     else:
         live_match['gold_advantage'] = 0
         live_match['elapsed_time'] = 0
+
 
 def _insert_sorted(new_live_match):
     if new_live_match['is_tournament_match']:

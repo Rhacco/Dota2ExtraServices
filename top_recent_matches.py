@@ -10,6 +10,7 @@ _finished_matches = {}  # queue of finished matches
 _expiration_dates = {}  # compensate for the delay of the Steam Web API
 _fail_counters = {}  # compensate for corrupt API calls occurring sometimes
 
+
 def fetch_finished_matches():
     for live_match in top_live_matches.data:
         match_id = int(live_match['match_id'])
@@ -18,13 +19,14 @@ def fetch_finished_matches():
                 # If this succeeds, match is finished
                 steam_finished_match = api.dota2.get_match_details(match_id)
                 _finished_matches[match_id] = (live_match,
-                                                steam_finished_match)
+                                               steam_finished_match)
                 now = datetime.datetime.now()
                 delay = live_match['delay']
                 expiration_date = now + datetime.timedelta(seconds=delay)
                 _expiration_dates[match_id] = expiration_date
             except:
                 pass
+
 
 def handle_finished_matches():
     now = datetime.datetime.now()
@@ -61,6 +63,7 @@ def handle_finished_matches():
             top_live_matches.fail_counters.pop(match_id)
     while len(data) > 50:  # only keep most recent top matches
         data.popitem()
+
 
 def _convert(live_match, steam_finished_match):
     converted = deepcopy(live_match)

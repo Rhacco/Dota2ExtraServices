@@ -9,6 +9,7 @@ data_by_hero_id = {}
 last_update = 0
 _removed_abilities = ['Morph Replicate']
 
+
 def update():
     global last_update
     dotaconstants = 'node_modules/dotaconstants/build/'
@@ -37,7 +38,7 @@ def update():
                 if 'dname' in ability and ability['behavior'] != 'Hidden':
                     if ability['dname'] not in _removed_abilities:
                         data_by_hero_name[hero_name]['abilities'].append(
-                                _convert(ability))
+                            _convert(ability))
         if hero_name == 'npc_dota_hero_invoker':
             for talent in values['talents']:
                 if talent['name'].startswith('invoker_'):
@@ -45,13 +46,14 @@ def update():
                         _convert(abilities[talent['name']]))
                 else:
                     data_by_hero_name[hero_name]['talents'].append(
-                            abilities[talent['name']]['dname'])
+                        abilities[talent['name']]['dname'])
         else:
             for talent in values['talents']:
                 if 'dname' in abilities[talent['name']]:
                     data_by_hero_name[hero_name]['talents'].append(
-                            abilities[talent['name']]['dname'])
+                        abilities[talent['name']]['dname'])
     last_update = time.time()
+
 
 def _convert(ability):
     if 'desc' in ability:
@@ -68,6 +70,7 @@ def _convert(ability):
     if 'mc' in ability and isinstance(ability['mc'], list):
         ability['mc'] = list_to_string(ability['mc'], ' / ')
     return ability
+
 
 def _insert_sorted(new_hero):
     for index, hero in enumerate(data):
