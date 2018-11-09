@@ -48,8 +48,11 @@ def _convert(item):
         item.pop('mc')
     if isinstance(item['cd'], bool):
         item.pop('cd')
-    item['desc'] = _fix_spaces(item['desc'])
-    item['desc'] = re.sub(r'[\n]{1,}', '\n\n', item['desc'])
+    if 'desc' in item:
+        item['desc'] = _fix_spaces(item['desc'])
+        item['desc'] = re.sub(r'[\n]{1,}', '\n\n', item['desc'])
+    else:
+        item['desc'] = ''
     item['notes'] = _fix_spaces(item['notes'])
     item['notes'] = re.sub(r'[\n]{1,}', '\n\n', item['notes'])
     if item['dname'] == 'Cheese' or item['dname'] == 'Refresher Shard':
